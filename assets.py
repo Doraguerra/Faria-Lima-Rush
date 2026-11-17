@@ -12,7 +12,6 @@ import pygame
 from config import LARGURA, ALTURA, CHAO_Y, PASTA_IMG, PASTA_SND, PASTA_FONT
 
 
-# [NÍVEL: MÉDIO] — o "plano B" com pygame.Surface é novo em relação ao tutorial.
 def carregar_imagem(nome, tamanho, cor_reserva):
     """Carrega assets/img/<nome> no tamanho pedido.
 
@@ -28,7 +27,7 @@ def carregar_imagem(nome, tamanho, cor_reserva):
     return imagem
 
 
-# [NÍVEL: FÁCIL] — um for montando uma lista.
+# [NÍVEL: FÁCIL] — um for montando uma lista - M
 def carregar_animacao(prefixo, quantidade, tamanho, cores_reserva):
     """Carrega os quadros <prefixo>0.png, <prefixo>1.png, ... numa lista."""
     quadros = []
@@ -41,7 +40,8 @@ def carregar_animacao(prefixo, quantidade, tamanho, cores_reserva):
 # [NÍVEL: MÉDIO] — desenha prédios "aleatórios", mas sempre iguais (semente fixa).
 def criar_predios_reserva(tamanho):
     """Desenha prédios cinzas simples para usar enquanto não há predios.png."""
-    largura, altura = tamanho
+    largura = tamanho[0]
+    altura = tamanho[1]
     imagem = pygame.Surface(tamanho, pygame.SRCALPHA)
     sorteio = random.Random(42)  # semente fixa: o desenho sai igual toda vez
     x = 0
@@ -55,10 +55,11 @@ def criar_predios_reserva(tamanho):
     return imagem
 
 
-# [NÍVEL: FÁCIL] — um retângulo cinza e faixas brancas.
+# [NÍVEL: FÁCIL] — um retângulo cinza e faixas brancas. - M e C
 def criar_rua_reserva(tamanho):
     """Desenha uma rua cinza com faixas, para usar enquanto não há rua.png."""
-    largura, altura = tamanho
+    largura = tamanho[0]
+    altura = tamanho[1]
     imagem = pygame.Surface(tamanho)
     imagem.fill((50, 50, 55))
     for x in range(0, largura, 80):
@@ -66,7 +67,7 @@ def criar_rua_reserva(tamanho):
     return imagem
 
 
-# [NÍVEL: FÁCIL] — círculos cada vez maiores.
+# [NÍVEL: FÁCIL] — círculos cada vez maiores. - M
 def criar_explosao_reserva():
     """Cria 6 quadros de explosão (círculos laranja crescendo)."""
     quadros = []
@@ -102,7 +103,7 @@ def carregar_som(nome, volume=0.5):
     return None
 
 
-# [NÍVEL: FÁCIL]
+# [NÍVEL: FÁCIL] - M
 def tocar(som):
     """Toca um som, se ele existir (se for None, não faz nada)."""
     if som is not None:

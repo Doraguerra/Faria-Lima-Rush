@@ -6,7 +6,7 @@ from config import FASES, FPS
 from assets import carregar_assets
 
 
-# [NÍVEL: FÁCIL]
+# [NÍVEL: FÁCIL] 
 def main():
     """Inicia o pygame, roda o jogo e fecha tudo no final."""
     pygame.init()
