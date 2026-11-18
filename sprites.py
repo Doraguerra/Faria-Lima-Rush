@@ -1,7 +1,9 @@
 """Classes (sprites) do jogo Atrasado na Faria Lima."""
 # Código gerado com IA (Claude, da Anthropic) — ver a seção "Uso de IA" no README.
+import random
 import pygame
 from config import CHAO_Y, TETO_Y, JOGADOR_X, GRAVIDADE, EMPURRAO, VEL_MAX
+from config import LARGURA, VIDAS_INICIAIS, TEMPO_INVENCIVEL
 
 
 # [NÍVEL: DIFÍCIL] — a física (gravidade + empurrão) e a animação por tempo.
@@ -26,6 +28,9 @@ class Jogador(pygame.sprite.Sprite):
         self.quadro = 0
         self.tempo_quadro = 120  # milissegundos entre um quadro e outro
         self.ultimo_quadro = pygame.time.get_ticks()
+        self.vidas = VIDAS_INICIAIS
+        self.invencivel_ate = 0
+        self.imagem_vazia = pygame.Surface(self.image.get_size(), pygame.SRCALPHA)
 
     def update(self):
         """Aplica a física do jetpack e escolhe o quadro da animação."""
@@ -61,6 +66,24 @@ class Jogador(pygame.sprite.Sprite):
             quadros = self.quadros_voando
         # O operador % faz o número "dar a volta": 0, 1, 0, 1, ...
         self.image = quadros[self.quadro % len(quadros)]
+        # Piscando: a cada 100 ms alterna entre a imagem e uma imagem vazia.
+        if self.esta_invencivel() and (agora // 100) % 2 == 0:
+            self.image = self.imagem_vazia
+
+    def esta_invencivel(self):
+        """Devolve True se o jogador ainda está piscando depois de uma batida."""
+        return pygame.time.get_ticks() < self.invencivel_ate
+
+    def levar_dano(self):
+        """Tira uma vida (ou o escudo) e deixa o jogador invencível um tempo.
+
+        Devolve True se o dano valeu e False se o jogador estava invencível.
+        """
+        if self.esta_invencivel():
+            return False
+        self.vidas -= 1
+        self.invencivel_ate = pygame.time.get_ticks() + TEMPO_INVENCIVEL
+        return True
 
 
 # [NÍVEL: MÉDIO] — a ideia das duas cópias é nova; o código é curto.
@@ -88,3 +111,30 @@ class Fundo:
         """Desenha duas cópias lado a lado, como uma esteira de supermercado."""
         tela.blit(self.imagem, (self.x, self.y))
         tela.blit(self.imagem, (self.x + self.largura, self.y))
+
+
+# [NÍVEL: FÁCIL] — parecido com a classe Meteor do tutorial.
+class Drone(pygame.sprite.Sprite):
+    """Drone de entrega: obstáculo que vem da direita."""
+
+    def __init__(self, imagem, movel):
+        """Cria o drone fora da tela, à direita, numa altura sorteada."""
+        pygame.sprite.Sprite.__init__(self)
+        self.image = imagem
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect.left = LARGURA
+        self.rect.y = random.randint(TETO_Y, CHAO_Y - self.rect.height)
+        if movel:
+            self.vel_y = random.choice([-2, 2])
+        else:
+            self.vel_y = 0
+
+    def update(self, velocidade):
+        """Anda para a esquerda (e sobe/desce, se for móvel)."""
+        self.rect.x -= velocidade
+        self.rect.y += self.vel_y
+        if self.rect.top <= TETO_Y or self.rect.bottom >= CHAO_Y:
+            self.vel_y = -self.vel_y  # bateu no teto/chão: inverte
+        if self.rect.right < 0:
+            self.kill()  # saiu da tela: some de todos os grupos
