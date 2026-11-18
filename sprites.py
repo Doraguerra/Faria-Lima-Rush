@@ -61,3 +61,30 @@ class Jogador(pygame.sprite.Sprite):
             quadros = self.quadros_voando
         # O operador % faz o número "dar a volta": 0, 1, 0, 1, ...
         self.image = quadros[self.quadro % len(quadros)]
+
+
+# [NÍVEL: MÉDIO] — a ideia das duas cópias é nova; o código é curto.
+class Fundo:
+    """Uma camada de fundo que anda para a esquerda e se repete sem fim.
+
+    Não é um Sprite: não colide com nada, só é desenhada.
+    """
+
+    def __init__(self, imagem, fator, y):
+        """fator = fração da velocidade do mundo (0.3 = anda a 30%)."""
+        self.imagem = imagem
+        self.fator = fator
+        self.y = y
+        self.x = 0.0
+        self.largura = imagem.get_width()
+
+    def update(self, velocidade):
+        """Anda para a esquerda; quando sai inteira da tela, volta ao início."""
+        self.x -= velocidade * self.fator
+        if self.x <= -self.largura:
+            self.x += self.largura
+
+    def desenhar(self, tela):
+        """Desenha duas cópias lado a lado, como uma esteira de supermercado."""
+        tela.blit(self.imagem, (self.x, self.y))
+        tela.blit(self.imagem, (self.x + self.largura, self.y))

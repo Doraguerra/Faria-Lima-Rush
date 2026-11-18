@@ -2,8 +2,8 @@
 # Código gerado com IA (Claude, da Anthropic) — ver a seção "Uso de IA" no README.
 import pygame
 from config import FPS, CHAO_Y, FASES, SAIR
-from config import LARGURA, ALTURA, CINZA
 from sprites import Jogador
+from sprites import Fundo
 
 
 # [NÍVEL: DIFÍCIL] — junta tudo: eventos, atualização, colisões e desenho.
@@ -11,6 +11,9 @@ def tela_jogo(tela, assets):
     """Roda uma partida e devolve (próximo estado, pontos)."""
     relogio = pygame.time.Clock()
     jogador = Jogador(assets)
+    fundo_predios = Fundo(assets['predios'], 0.3, 0)
+    fundo_rua = Fundo(assets['rua'], 1.0, CHAO_Y)
+    velocidade = FASES[0]['velocidade']
 
     while True:
         relogio.tick(FPS)
@@ -25,11 +28,14 @@ def tela_jogo(tela, assets):
 
         # ---------- 2. Atualização ----------
         jogador.update()
+        fundo_predios.update(velocidade)
+        fundo_rua.update(velocidade)
 
         # ---------- 3. Colisões ----------
 
         # ---------- 4. Desenho ----------
         tela.fill(FASES[0]['ceu'])
-        pygame.draw.rect(tela, CINZA, (0, CHAO_Y, LARGURA, ALTURA - CHAO_Y))
+        fundo_predios.desenhar(tela)
+        fundo_rua.desenhar(tela)
         tela.blit(jogador.image, jogador.rect)
         pygame.display.update()
