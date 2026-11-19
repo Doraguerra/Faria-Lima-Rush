@@ -34,7 +34,7 @@ class Gerador:
         if agora >= self.proximo_cafe:
             self.criar_fileira_de_cafes(grupos)
             self.proximo_cafe = agora + random.randint(3000, 5000)
-        if agora >= self.proximo_missil:
+        if fase['misseis'] and agora >= self.proximo_missil:
             # O aviso aparece na altura em que o jogador está AGORA.
             missil = Missil(self.assets['pombo'], self.assets['aviso'], jogador.rect.centery)
             grupos['todos'].add(missil)

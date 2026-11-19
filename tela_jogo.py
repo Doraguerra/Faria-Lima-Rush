@@ -4,10 +4,30 @@ import pygame
 from config import FPS, CHAO_Y, FASES, SAIR
 from config import LARGURA, PIXELS_POR_METRO, BRANCO, GAME_OVER
 from config import PONTOS_CAFE
+from config import ALTURA, ACELERACAO_NOITE, AMARELO
 from sprites import Jogador
 from sprites import Fundo
 from gerador import Gerador
 from utils import desenhar_texto
+
+
+# [NÍVEL: MÉDIO] — percorre a lista de fases e guarda a última que já começou.
+def fase_atual(distancia):
+    """Devolve o dicionário da fase em que o jogador está."""
+    fase = FASES[0]
+    for f in FASES:
+        if distancia >= f['inicio']:
+            fase = f
+    return fase
+
+
+# [NÍVEL: MÉDIO]
+def velocidade_atual(fase, distancia):
+    """Velocidade do mundo. Na NOITE, aumenta a cada 500 m."""
+    velocidade = fase['velocidade']
+    if fase['nome'] == 'NOITE':
+        velocidade += (distancia - fase['inicio']) // 500 * ACELERACAO_NOITE
+    return velocidade
 
 
 # [NÍVEL: FÁCIL]
@@ -27,7 +47,6 @@ def tela_jogo(tela, assets):
     jogador = Jogador(assets)
     fundo_predios = Fundo(assets['predios'], 0.3, 0)
     fundo_rua = Fundo(assets['rua'], 1.0, CHAO_Y)
-    velocidade = FASES[0]['velocidade']
     grupos = {
         'todos': pygame.sprite.Group(),       # tudo que anda e é desenhado
         'obstaculos': pygame.sprite.Group(),  # o que machuca
@@ -38,9 +57,11 @@ def tela_jogo(tela, assets):
     distancia_px = 0
     pontos = 0
     cafes = 0
+    aviso_fase_ate = pygame.time.get_ticks() + 2000
 
     while True:
         relogio.tick(FPS)
+        agora = pygame.time.get_ticks()
 
         # ---------- 1. Eventos ----------
         for evento in pygame.event.get():
@@ -52,6 +73,11 @@ def tela_jogo(tela, assets):
 
         # ---------- 2. Atualização ----------
         distancia = distancia_px // PIXELS_POR_METRO
+        nova_fase = fase_atual(distancia)
+        if nova_fase is not fase:
+            fase = nova_fase
+            aviso_fase_ate = agora + 2000  # mostra o nome da fase por 2 s
+        velocidade = velocidade_atual(fase, distancia)
         distancia_px += velocidade
         jogador.update()
         fundo_predios.update(velocidade)
@@ -75,10 +101,12 @@ def tela_jogo(tela, assets):
             return GAME_OVER, pontos
 
         # ---------- 4. Desenho ----------
-        tela.fill(FASES[0]['ceu'])
+        tela.fill(fase['ceu'])
         fundo_predios.desenhar(tela)
         fundo_rua.desenhar(tela)
         grupos['todos'].draw(tela)
         tela.blit(jogador.image, jogador.rect)
         desenhar_hud(tela, assets, jogador, distancia, pontos)
+        if agora < aviso_fase_ate:
+            desenhar_texto(tela, assets['fonte_grande'], fase['nome'] + '!', AMARELO, (LARGURA // 2, ALTURA // 3))
         pygame.display.update()
