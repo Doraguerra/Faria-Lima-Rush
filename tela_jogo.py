@@ -3,6 +3,7 @@
 import pygame
 from config import FPS, CHAO_Y, FASES, SAIR
 from config import LARGURA, PIXELS_POR_METRO, BRANCO, GAME_OVER
+from config import PONTOS_CAFE
 from sprites import Jogador
 from sprites import Fundo
 from gerador import Gerador
@@ -36,6 +37,7 @@ def tela_jogo(tela, assets):
     fase = FASES[0]
     distancia_px = 0
     pontos = 0
+    cafes = 0
 
     while True:
         relogio.tick(FPS)
@@ -58,7 +60,12 @@ def tela_jogo(tela, assets):
         grupos['todos'].update(velocidade)
 
         # ---------- 3. Colisões ----------
-        pontos = distancia
+        # True = o item some do jogo ao ser pego.
+        pegos = pygame.sprite.spritecollide(jogador, grupos['itens'], True, pygame.sprite.collide_mask)
+        for item in pegos:
+            if item.tipo == 'cafe':
+                cafes += 1
+        pontos = distancia + cafes * PONTOS_CAFE
         # False = o obstáculo não some sozinho; decidimos abaixo.
         batidas = pygame.sprite.spritecollide(jogador, grupos['obstaculos'], False, pygame.sprite.collide_mask)
         for obstaculo in batidas:

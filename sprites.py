@@ -44,7 +44,10 @@ class Jogador(pygame.sprite.Sprite):
             self.rect.bottom = CHAO_Y
             self.y = float(self.rect.y)
             self.vel_y = 0
-        if self.rect.top < TETO_Y:  # passou no teto; se tiver <= da bug e voa para sempre
+        # "<" e não "<=": com "<=", ao encostar no teto o jogador ficava preso
+        # (a gravidade de 0.5 era arredondada para 0 pelo int() e ele era
+        # empurrado de volta ao teto a cada quadro).
+        if self.rect.top < TETO_Y:  # passou do teto
             self.rect.top = TETO_Y
             self.y = float(self.rect.y)
             self.vel_y = 0
@@ -138,3 +141,24 @@ class Drone(pygame.sprite.Sprite):
             self.vel_y = -self.vel_y  # bateu no teto/chão: inverte
         if self.rect.right < 0:
             self.kill()  # saiu da tela: some de todos os grupos
+
+
+# [NÍVEL: FÁCIL]
+class Item(pygame.sprite.Sprite):
+    """Coisa que o jogador pode pegar: 'cafe' ou 'capacete'."""
+
+    def __init__(self, imagem, tipo, x, y):
+        """Cria o item na posição (x, y). tipo diz o que ele é."""
+        pygame.sprite.Sprite.__init__(self)
+        self.image = imagem
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect.x = x
+        self.rect.y = y
+        self.tipo = tipo
+
+    def update(self, velocidade):
+        """Anda para a esquerda junto com o cenário."""
+        self.rect.x -= velocidade
+        if self.rect.right < 0:
+            self.kill()
