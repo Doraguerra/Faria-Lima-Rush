@@ -5,6 +5,7 @@ import pygame
 from config import LARGURA, TETO_Y, CHAO_Y
 from sprites import Drone
 from sprites import Item
+from sprites import Missil
 
 
 # [NÍVEL: DIFÍCIL] — temporizadores com get_ticks() (mesma ideia do limite
@@ -18,6 +19,7 @@ class Gerador:
         agora = pygame.time.get_ticks()
         self.proximo_drone = agora + 1500
         self.proximo_cafe = agora + 2500
+        self.proximo_missil = agora + 4000
 
     def atualizar(self, fase, jogador, grupos):
         """Cria os objetos cujo horário chegou e sorteia o próximo horário."""
@@ -32,6 +34,12 @@ class Gerador:
         if agora >= self.proximo_cafe:
             self.criar_fileira_de_cafes(grupos)
             self.proximo_cafe = agora + random.randint(3000, 5000)
+        if agora >= self.proximo_missil:
+            # O aviso aparece na altura em que o jogador está AGORA.
+            missil = Missil(self.assets['pombo'], self.assets['aviso'], jogador.rect.centery)
+            grupos['todos'].add(missil)
+            grupos['obstaculos'].add(missil)
+            self.proximo_missil = agora + random.randint(3000, 6000)
 
     def criar_fileira_de_cafes(self, grupos):
         """Cria 5 cafés em fila, numa altura sorteada."""

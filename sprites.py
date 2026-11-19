@@ -4,6 +4,7 @@ import random
 import pygame
 from config import CHAO_Y, TETO_Y, JOGADOR_X, GRAVIDADE, EMPURRAO, VEL_MAX
 from config import LARGURA, VIDAS_INICIAIS, TEMPO_INVENCIVEL
+from config import TEMPO_AVISO_MISSIL, VEL_MISSIL
 
 
 # [NÍVEL: DIFÍCIL] — a física (gravidade + empurrão) e a animação por tempo.
@@ -162,3 +163,53 @@ class Item(pygame.sprite.Sprite):
         self.rect.x -= velocidade
         if self.rect.right < 0:
             self.kill()
+
+
+AVISO = 'aviso'
+ATACANDO = 'atacando'
+
+
+# [NÍVEL: DIFÍCIL] — uma mini máquina de estados (AVISO -> ATACANDO).
+class Missil(pygame.sprite.Sprite):
+    """Pombo-míssil: primeiro um aviso pisca, depois o pombo atravessa a tela."""
+
+    def __init__(self, quadros, imagem_aviso, altura):
+        """Começa no estado AVISO, na borda direita, na altura dada."""
+        pygame.sprite.Sprite.__init__(self)
+        self.quadros = quadros
+        self.imagem_aviso = imagem_aviso
+        self.imagem_vazia = pygame.Surface(imagem_aviso.get_size(), pygame.SRCALPHA)
+        self.altura = altura
+        self.estado = AVISO
+        self.inicio = pygame.time.get_ticks()
+        self.image = imagem_aviso
+        self.rect = self.image.get_rect()
+        self.rect.right = LARGURA - 10
+        self.rect.centery = altura
+        # Máscara vazia: durante o aviso, encostar não machuca.
+        self.mask = pygame.mask.Mask(self.rect.size)
+        self.quadro = 0
+
+    def update(self, velocidade):
+        """Pisca o aviso; depois de TEMPO_AVISO_MISSIL, vira pombo e ataca."""
+        agora = pygame.time.get_ticks()
+        if self.estado == AVISO:
+            if (agora // 150) % 2 == 0:
+                self.image = self.imagem_aviso
+            else:
+                self.image = self.imagem_vazia
+            if agora - self.inicio >= TEMPO_AVISO_MISSIL:
+                # Troca de estado: agora ele é o pombo, fora da tela à direita.
+                self.estado = ATACANDO
+                self.image = self.quadros[0]
+                self.rect = self.image.get_rect()
+                self.rect.left = LARGURA
+                self.rect.centery = self.altura
+                self.mask = pygame.mask.from_surface(self.image)
+        else:
+            self.rect.x -= velocidade + VEL_MISSIL
+            self.quadro += 1
+            # Troca a asa a cada 6 quadros do jogo (// 6).
+            self.image = self.quadros[(self.quadro // 6) % len(self.quadros)]
+            if self.rect.right < 0:
+                self.kill()
