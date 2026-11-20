@@ -10,6 +10,7 @@ from sprites import Fundo
 from sprites import Explosao
 from gerador import Gerador
 from utils import desenhar_texto
+from assets import tocar, tocar_musica, parar_musica
 
 
 # [NÍVEL: MÉDIO] — percorre a lista de fases e guarda a última que já começou.
@@ -60,6 +61,7 @@ def tela_jogo(tela, assets):
     cafes = 0
     aviso_fase_ate = pygame.time.get_ticks() + 2000
     fim_em = None
+    tocar_musica()
 
     while True:
         relogio.tick(FPS)
@@ -69,6 +71,9 @@ def tela_jogo(tela, assets):
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 return SAIR, pontos
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_SPACE:
+                    tocar(assets['som_jetpack'])
         # get_pressed() diz quais teclas estão APERTADAS AGORA (segurando).
         teclas = pygame.key.get_pressed()
         jogador.voando = teclas[pygame.K_SPACE]
@@ -93,17 +98,22 @@ def tela_jogo(tela, assets):
         for item in pegos:
             if item.tipo == 'cafe':
                 cafes += 1
+                tocar(assets['som_cafe'])
             if item.tipo == 'capacete':
                 jogador.escudo = True
+                tocar(assets['som_escudo'])
         pontos = distancia + cafes * PONTOS_CAFE
         # False = o obstáculo não some sozinho; decidimos abaixo.
         batidas = pygame.sprite.spritecollide(jogador, grupos['obstaculos'], False, pygame.sprite.collide_mask)
         for obstaculo in batidas:
             if jogador.levar_dano():
                 obstaculo.kill()
+                tocar(assets['som_batida'])
                 grupos['todos'].add(Explosao(assets['explosao'], obstaculo.rect.center))
         if jogador.vidas == 0 and fim_em is None:
             fim_em = agora + 1200  # espera 1,2 s para a explosão aparecer
+            parar_musica()
+            tocar(assets['som_game_over'])
         if fim_em is not None and agora >= fim_em:
             return GAME_OVER, pontos
 

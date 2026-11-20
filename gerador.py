@@ -6,6 +6,7 @@ from config import LARGURA, TETO_Y, CHAO_Y
 from sprites import Drone
 from sprites import Item
 from sprites import Missil
+from assets import tocar
 
 
 # [NÍVEL: DIFÍCIL] — temporizadores com get_ticks() (mesma ideia do limite
@@ -40,6 +41,7 @@ class Gerador:
             missil = Missil(self.assets['pombo'], self.assets['aviso'], jogador.rect.centery)
             grupos['todos'].add(missil)
             grupos['obstaculos'].add(missil)
+            tocar(self.assets['som_aviso'])
             self.proximo_missil = agora + random.randint(3000, 6000)
         if agora >= self.proximo_capacete:
             y = random.randint(TETO_Y + 20, CHAO_Y - 80)
