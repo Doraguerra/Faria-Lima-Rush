@@ -7,6 +7,7 @@ from config import PONTOS_CAFE
 from config import ALTURA, ACELERACAO_NOITE, AMARELO
 from sprites import Jogador
 from sprites import Fundo
+from sprites import Explosao
 from gerador import Gerador
 from utils import desenhar_texto
 
@@ -58,6 +59,7 @@ def tela_jogo(tela, assets):
     pontos = 0
     cafes = 0
     aviso_fase_ate = pygame.time.get_ticks() + 2000
+    fim_em = None
 
     while True:
         relogio.tick(FPS)
@@ -91,13 +93,18 @@ def tela_jogo(tela, assets):
         for item in pegos:
             if item.tipo == 'cafe':
                 cafes += 1
+            if item.tipo == 'capacete':
+                jogador.escudo = True
         pontos = distancia + cafes * PONTOS_CAFE
         # False = o obstáculo não some sozinho; decidimos abaixo.
         batidas = pygame.sprite.spritecollide(jogador, grupos['obstaculos'], False, pygame.sprite.collide_mask)
         for obstaculo in batidas:
             if jogador.levar_dano():
                 obstaculo.kill()
-        if jogador.vidas == 0:
+                grupos['todos'].add(Explosao(assets['explosao'], obstaculo.rect.center))
+        if jogador.vidas == 0 and fim_em is None:
+            fim_em = agora + 1200  # espera 1,2 s para a explosão aparecer
+        if fim_em is not None and agora >= fim_em:
             return GAME_OVER, pontos
 
         # ---------- 4. Desenho ----------
@@ -105,7 +112,11 @@ def tela_jogo(tela, assets):
         fundo_predios.desenhar(tela)
         fundo_rua.desenhar(tela)
         grupos['todos'].draw(tela)
-        tela.blit(jogador.image, jogador.rect)
+        if jogador.vidas > 0:
+            tela.blit(jogador.image, jogador.rect)
+        if jogador.escudo:
+            raio = max(jogador.rect.width, jogador.rect.height) // 2 + 8
+            pygame.draw.circle(tela, AMARELO, jogador.rect.center, raio, 3)
         desenhar_hud(tela, assets, jogador, distancia, pontos)
         if agora < aviso_fase_ate:
             desenhar_texto(tela, assets['fonte_grande'], fase['nome'] + '!', AMARELO, (LARGURA // 2, ALTURA // 3))

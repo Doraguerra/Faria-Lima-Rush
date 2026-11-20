@@ -20,6 +20,7 @@ class Gerador:
         self.proximo_drone = agora + 1500
         self.proximo_cafe = agora + 2500
         self.proximo_missil = agora + 4000
+        self.proximo_capacete = agora + random.randint(20000, 30000)
 
     def atualizar(self, fase, jogador, grupos):
         """Cria os objetos cujo horário chegou e sorteia o próximo horário."""
@@ -40,6 +41,12 @@ class Gerador:
             grupos['todos'].add(missil)
             grupos['obstaculos'].add(missil)
             self.proximo_missil = agora + random.randint(3000, 6000)
+        if agora >= self.proximo_capacete:
+            y = random.randint(TETO_Y + 20, CHAO_Y - 80)
+            capacete = Item(self.assets['capacete'], 'capacete', LARGURA, y)
+            grupos['todos'].add(capacete)
+            grupos['itens'].add(capacete)
+            self.proximo_capacete = agora + random.randint(25000, 40000)
 
     def criar_fileira_de_cafes(self, grupos):
         """Cria 5 cafés em fila, numa altura sorteada."""

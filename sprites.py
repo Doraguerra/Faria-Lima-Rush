@@ -32,6 +32,7 @@ class Jogador(pygame.sprite.Sprite):
         self.vidas = VIDAS_INICIAIS
         self.invencivel_ate = 0
         self.imagem_vazia = pygame.Surface(self.image.get_size(), pygame.SRCALPHA)
+        self.escudo = False
 
     def update(self):
         """Aplica a física do jetpack e escolhe o quadro da animação."""
@@ -85,7 +86,10 @@ class Jogador(pygame.sprite.Sprite):
         """
         if self.esta_invencivel():
             return False
-        self.vidas -= 1
+        if self.escudo:
+            self.escudo = False
+        else:
+            self.vidas -= 1
         self.invencivel_ate = pygame.time.get_ticks() + TEMPO_INVENCIVEL
         return True
 
@@ -213,3 +217,34 @@ class Missil(pygame.sprite.Sprite):
             self.image = self.quadros[(self.quadro // 6) % len(self.quadros)]
             if self.rect.right < 0:
                 self.kill()
+
+
+# [NÍVEL: MÉDIO] — igual à classe Explosion do tutorial (jogo_v15).
+class Explosao(pygame.sprite.Sprite):
+    """Animação de explosão que some sozinha quando acaba."""
+
+    def __init__(self, quadros, centro):
+        """Começa no primeiro quadro, centralizada no ponto dado."""
+        pygame.sprite.Sprite.__init__(self)
+        self.quadros = quadros
+        self.quadro = 0
+        self.image = self.quadros[0]
+        self.rect = self.image.get_rect()
+        self.rect.center = centro
+        self.ultimo_quadro = pygame.time.get_ticks()
+        self.tempo_quadro = 60
+
+    def update(self, velocidade):
+        """Anda com o cenário e passa para o próximo quadro a cada 60 ms."""
+        self.rect.x -= velocidade
+        agora = pygame.time.get_ticks()
+        if agora - self.ultimo_quadro >= self.tempo_quadro:
+            self.ultimo_quadro = agora
+            self.quadro += 1
+            if self.quadro == len(self.quadros):
+                self.kill()  # acabou a animação
+            else:
+                centro = self.rect.center
+                self.image = self.quadros[self.quadro]
+                self.rect = self.image.get_rect()
+                self.rect.center = centro
