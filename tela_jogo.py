@@ -5,6 +5,7 @@ from config import FPS, CHAO_Y, FASES, SAIR
 from config import LARGURA, PIXELS_POR_METRO, BRANCO, GAME_OVER
 from config import PONTOS_CAFE
 from config import ALTURA, ACELERACAO_NOITE, AMARELO
+from config import PRETO, INICIO
 from sprites import Jogador
 from sprites import Fundo
 from sprites import Explosao
@@ -42,6 +43,18 @@ def desenhar_hud(tela, assets, jogador, distancia, pontos):
     desenhar_texto(tela, fonte, f'Pontos: {pontos}', BRANCO, (LARGURA - 260, 44), False)
 
 
+# [NÍVEL: FÁCIL]
+def desenhar_pause(tela, assets):
+    """Desenha a caixa de PAUSADO por cima do jogo congelado."""
+    caixa = pygame.Rect(0, 0, 520, 200)
+    caixa.center = (LARGURA // 2, ALTURA // 2)
+    pygame.draw.rect(tela, PRETO, caixa, border_radius=12)
+    pygame.draw.rect(tela, BRANCO, caixa, 3, border_radius=12)
+    desenhar_texto(tela, assets['fonte_grande'], 'PAUSADO', AMARELO, (LARGURA // 2, ALTURA // 2 - 40))
+    desenhar_texto(tela, assets['fonte_pequena'], 'P para continuar', BRANCO, (LARGURA // 2, ALTURA // 2 + 20))
+    desenhar_texto(tela, assets['fonte_pequena'], 'ESC para o menu', BRANCO, (LARGURA // 2, ALTURA // 2 + 50))
+
+
 # [NÍVEL: DIFÍCIL] — junta tudo: eventos, atualização, colisões e desenho.
 def tela_jogo(tela, assets):
     """Roda uma partida e devolve (próximo estado, pontos)."""
@@ -61,6 +74,7 @@ def tela_jogo(tela, assets):
     cafes = 0
     aviso_fase_ate = pygame.time.get_ticks() + 2000
     fim_em = None
+    pausado = False
     tocar_musica()
 
     while True:
@@ -72,11 +86,21 @@ def tela_jogo(tela, assets):
             if evento.type == pygame.QUIT:
                 return SAIR, pontos
             if evento.type == pygame.KEYDOWN:
-                if evento.key == pygame.K_SPACE:
+                if evento.key == pygame.K_SPACE and not pausado:
                     tocar(assets['som_jetpack'])
+                if evento.key == pygame.K_p:
+                    pausado = not pausado
+                if evento.key == pygame.K_ESCAPE:
+                    parar_musica()
+                    return INICIO, pontos
         # get_pressed() diz quais teclas estão APERTADAS AGORA (segurando).
         teclas = pygame.key.get_pressed()
         jogador.voando = teclas[pygame.K_SPACE]
+
+        if pausado:
+            desenhar_pause(tela, assets)
+            pygame.display.update()
+            continue  # pula o resto do loop: nada anda enquanto pausado
 
         # ---------- 2. Atualização ----------
         distancia = distancia_px // PIXELS_POR_METRO
