@@ -69,6 +69,8 @@ def tela_jogo(tela, assets):
     }
     gerador = Gerador(assets)
     fase = FASES[0]
+    velocidade = fase['velocidade']   # velocidade atual do mundo (muda aos poucos)
+    ultima_aceleracao = 0             # quando (ms) a velocidade subiu pela última vez
     distancia_px = 0
     pontos = 0
     cafes = 0
@@ -108,7 +110,13 @@ def tela_jogo(tela, assets):
         if nova_fase is not fase:
             fase = nova_fase
             aviso_fase_ate = agora + 2000  # mostra o nome da fase por 2 s
-        velocidade = velocidade_atual(fase, distancia)
+        # [NÍVEL: MÉDIO] Acelera aos poucos: em vez de pular direto para a
+        # velocidade da fase nova (o que parecia uma "travadinha"), sobe
+        # 1 px a cada 0,5 s até chegar no alvo.
+        alvo = velocidade_atual(fase, distancia)
+        if velocidade < alvo and agora - ultima_aceleracao >= 500:
+            velocidade += 1
+            ultima_aceleracao = agora
         distancia_px += velocidade
         jogador.update()
         fundo_predios.update(velocidade)
