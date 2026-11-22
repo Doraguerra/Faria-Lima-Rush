@@ -16,6 +16,7 @@ def tela_instrucoes(tela, assets):
         (assets['capacete'], 'Capacete: aguenta uma batida'),
         (assets['drone'], 'Drone: desvie!'),
         (assets['aviso'], 'Aviso: um pombo-missil vem ai!'),
+        (assets['patinete'][0], 'Patinete na calcada: saia do chao!'),
         (None, 'P pausa   ESC volta ao menu'),
     ]
 
@@ -37,6 +38,6 @@ def tela_instrucoes(tela, assets):
                 retangulo.center = (190, y + 8)
                 tela.blit(imagem, retangulo)
             desenhar_texto(tela, assets['fonte_pequena'], texto, BRANCO, (250, y), False)
-            y += 55
+            y += 50
         desenhar_texto(tela, assets['fonte_pequena'], 'ENTER para voltar', AMARELO, (LARGURA // 2, 500))
         pygame.display.update()

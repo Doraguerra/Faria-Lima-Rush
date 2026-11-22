@@ -59,3 +59,7 @@ INSTRUCOES = 'instrucoes'
 JOGANDO = 'jogando'
 GAME_OVER = 'game_over'
 SAIR = 'sair'
+
+# ---------- Patinete ----------
+VEL_PATINETE = 5               # velocidade extra do patinete (o pombo usa 12)
+FAIXA_PATINETE = CHAO_Y - 56   # abaixo desta altura é a calçada: só patinetes passam ali

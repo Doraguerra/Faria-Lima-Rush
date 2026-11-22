@@ -3,6 +3,7 @@
 import random
 import pygame
 from config import LARGURA, TETO_Y, CHAO_Y
+from config import VEL_PATINETE, FAIXA_PATINETE
 from sprites import Drone
 from sprites import Item
 from sprites import Missil
@@ -22,6 +23,7 @@ class Gerador:
         self.proximo_cafe = agora + 2500
         self.proximo_missil = agora + 4000
         self.proximo_capacete = agora + random.randint(20000, 30000)
+        self.proximo_patinete = agora + 6000
 
     def atualizar(self, fase, jogador, grupos):
         """Cria os objetos cujo horário chegou e sorteia o próximo horário."""
@@ -52,6 +54,16 @@ class Gerador:
             grupos['obstaculos'].add(missil)
             tocar(self.assets['som_aviso'])
             self.proximo_missil = agora + random.randint(3000, 6000)
+        # [NÍVEL: FÁCIL] — reaproveita a classe Missil: o patinete é um
+        # "míssil de chão". Muda só a imagem e a altura (sempre rente à rua).
+        if agora >= self.proximo_patinete:
+            quadros = self.assets['patinete']
+            altura = CHAO_Y - quadros[0].get_height() // 2  # o meio do patinete, encostado no chão
+            patinete = Missil(quadros, self.assets['aviso'], altura, VEL_PATINETE)
+            grupos['todos'].add(patinete)
+            grupos['obstaculos'].add(patinete)
+            tocar(self.assets['som_aviso'])
+            self.proximo_patinete = agora + random.randint(6000, 10000)
         if agora >= self.proximo_capacete:
             imagem = self.assets['capacete']
             y = self.sortear_altura_livre(imagem.get_width(), imagem.get_height(), grupos['obstaculos'])
@@ -78,12 +90,13 @@ class Gerador:
 
     # [NÍVEL: MÉDIO]
     def sortear_altura_livre(self, largura, altura, grupo):
-        """Sorteia uma altura (y) livre na borda direita da tela.
+        """Sorteia uma altura (y) livre na borda direita da tela, acima da calçada.
 
         Tenta até 10 sorteios. Devolve o y encontrado, ou None se não achar.
         """
         for tentativa in range(10):
-            y = random.randint(TETO_Y, CHAO_Y - altura)
+            # Só até a FAIXA_PATINETE: a calçada fica livre para os patinetes.
+            y = random.randint(TETO_Y, FAIXA_PATINETE - altura)
             retangulo = pygame.Rect(LARGURA, y, largura, altura)
             if self.area_livre(retangulo, grupo):
                 return y

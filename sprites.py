@@ -5,6 +5,7 @@ import pygame
 from config import CHAO_Y, TETO_Y, JOGADOR_X, GRAVIDADE, EMPURRAO, VEL_MAX
 from config import LARGURA, VIDAS_INICIAIS, TEMPO_INVENCIVEL
 from config import TEMPO_AVISO_MISSIL, VEL_MISSIL
+from config import FAIXA_PATINETE
 
 
 # [NÍVEL: DIFÍCIL] — a física (gravidade + empurrão) e a animação por tempo.
@@ -132,7 +133,7 @@ class Drone(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.left = LARGURA
-        self.rect.y = random.randint(TETO_Y, CHAO_Y - self.rect.height)
+        self.rect.y = random.randint(TETO_Y, FAIXA_PATINETE - self.rect.height)
         if movel:
             self.vel_y = random.choice([-2, 2])
         else:
@@ -142,8 +143,11 @@ class Drone(pygame.sprite.Sprite):
         """Anda para a esquerda (e sobe/desce, se for móvel)."""
         self.rect.x -= velocidade
         self.rect.y += self.vel_y
-        if self.rect.top <= TETO_Y or self.rect.bottom >= CHAO_Y:
-            self.vel_y = -self.vel_y  # bateu no teto/chão: inverte
+        # "<" e ">" (e não "<=" e ">="), pelo mesmo motivo do teto do Jogador:
+        # com "<=", um drone que nascesse encostado no teto ficava tremendo ali.
+        # O limite de baixo é a FAIXA_PATINETE: drones nunca descem até a calçada.
+        if self.rect.top < TETO_Y or self.rect.bottom > FAIXA_PATINETE:
+            self.vel_y = -self.vel_y  # passou do teto/da calçada: inverte
         if self.rect.right < 0:
             self.kill()  # saiu da tela: some de todos os grupos
 
@@ -177,8 +181,11 @@ ATACANDO = 'atacando'
 class Missil(pygame.sprite.Sprite):
     """Pombo-míssil: primeiro um aviso pisca, depois o pombo atravessa a tela."""
 
-    def __init__(self, quadros, imagem_aviso, altura):
-        """Começa no estado AVISO, na borda direita, na altura dada."""
+    def __init__(self, quadros, imagem_aviso, altura, vel_extra=VEL_MISSIL):
+        """Começa no estado AVISO, na borda direita, na altura dada.
+
+        vel_extra = quanto ele voa mais rápido que o cenário (padrão: o do pombo).
+        """
         pygame.sprite.Sprite.__init__(self)
         self.quadros = quadros
         self.imagem_aviso = imagem_aviso
@@ -193,6 +200,7 @@ class Missil(pygame.sprite.Sprite):
         # Máscara vazia: durante o aviso, encostar não machuca.
         self.mask = pygame.mask.Mask(self.rect.size)
         self.quadro = 0
+        self.vel_extra = vel_extra
 
     def update(self, velocidade):
         """Pisca o aviso; depois de TEMPO_AVISO_MISSIL, vira pombo e ataca."""
@@ -211,7 +219,7 @@ class Missil(pygame.sprite.Sprite):
                 self.rect.centery = self.altura
                 self.mask = pygame.mask.from_surface(self.image)
         else:
-            self.rect.x -= velocidade + VEL_MISSIL
+            self.rect.x -= velocidade + self.vel_extra
             self.quadro += 1
             # Troca a asa a cada 6 quadros do jogo (// 6).
             self.image = self.quadros[(self.quadro // 6) % len(self.quadros)]

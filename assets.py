@@ -152,6 +152,8 @@ def carregar_assets():
     assets['drone'] = carregar_imagem('drone.png', (64, 40), (90, 90, 100))
     assets['pombo'] = carregar_animacao(
         'pombo', 2, (64, 40), [(150, 150, 160), (120, 120, 130)])
+    assets['patinete'] = carregar_animacao(
+        'patinete', 2, (64, 48), [(30, 115, 230), (15, 70, 165)])
     assets['aviso'] = carregar_imagem('aviso.png', (48, 48), (230, 40, 40))
     assets['cafe'] = carregar_imagem('cafe.png', (32, 32), (120, 70, 30))
     assets['capacete'] = carregar_imagem('capacete.png', (40, 40), (250, 210, 0))
