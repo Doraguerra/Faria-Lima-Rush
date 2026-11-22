@@ -37,10 +37,10 @@ def tela_inicio(tela, assets):
         tela.fill(FASES[0]['ceu'])
         fundo_predios.desenhar(tela)
         fundo_rua.desenhar(tela)
-        desenhar_texto(tela, assets['fonte_grande'], 'ATRASADO NA', PRETO, (centro_x + 3, 103))
-        desenhar_texto(tela, assets['fonte_grande'], 'ATRASADO NA', AMARELO, (centro_x, 100))
-        desenhar_texto(tela, assets['fonte_grande'], 'FARIA LIMA', PRETO, (centro_x + 3, 153))
-        desenhar_texto(tela, assets['fonte_grande'], 'FARIA LIMA', AMARELO, (centro_x, 150))
+        desenhar_texto(tela, assets['fonte_grande'], 'FARIA LIMA', PRETO, (centro_x + 3, 103))
+        desenhar_texto(tela, assets['fonte_grande'], 'FARIA LIMA', AMARELO, (centro_x, 100))
+        desenhar_texto(tela, assets['fonte_grande'], 'RUSH', PRETO, (centro_x + 3, 153))
+        desenhar_texto(tela, assets['fonte_grande'], 'RUSH', AMARELO, (centro_x, 150))
         # Painel escuro semitransparente para o texto ficar legível.
         # O 4º número da cor (150) é a transparência: 0 = invisível, 255 = opaco.
         painel = pygame.Surface((600, 160), pygame.SRCALPHA)
