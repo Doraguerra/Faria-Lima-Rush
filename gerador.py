@@ -62,7 +62,7 @@ class Gerador:
             patinete = Missil(quadros, self.assets['aviso'], altura, VEL_PATINETE)
             grupos['todos'].add(patinete)
             grupos['obstaculos'].add(patinete)
-            tocar(self.assets['som_aviso'])
+            tocar(self.assets['som_patinete'])
             self.proximo_patinete = agora + random.randint(6000, 10000)
         if agora >= self.proximo_capacete:
             imagem = self.assets['capacete']

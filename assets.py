@@ -170,6 +170,7 @@ def carregar_assets():
     assets['som_batida'] = carregar_som('batida')
     assets['som_escudo'] = carregar_som('escudo')
     assets['som_aviso'] = carregar_som('aviso')
+    assets['som_patinete'] = carregar_som('patinete')
     assets['som_game_over'] = carregar_som('game_over')
     # Fontes
     assets['fonte_grande'] = carregar_fonte('PressStart2P-Regular.ttf', 32)
