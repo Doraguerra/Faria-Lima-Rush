@@ -1,5 +1,6 @@
 """Constantes do jogo.
 """
+# Código gerado com IA (Claude, da Anthropic) — ver a seção "Uso de IA" no README.
 
 import os
 

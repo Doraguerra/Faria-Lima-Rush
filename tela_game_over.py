@@ -30,7 +30,7 @@ def tela_game_over(tela, assets, pontos):
 
         tela.fill((20, 20, 35))
         desenhar_texto(tela, assets['fonte_grande'], 'FIM DE JOGO', VERMELHO, (centro_x, 110))
-        desenhar_texto(tela, assets['fonte_pequena'], 'Voce chegou atrasado na aula!', BRANCO, (centro_x, 170))
+        desenhar_texto(tela, assets['fonte_pequena'], 'Voce chegou atrasado no trabalho!', BRANCO, (centro_x, 170))
         desenhar_texto(tela, assets['fonte_media'], f'Pontos: {pontos}', BRANCO, (centro_x, 250))
         desenhar_texto(tela, assets['fonte_media'], f'Recorde: {recorde}', AMARELO, (centro_x, 300))
         # Pisca a cada meio segundo (500 ms ligado, 500 ms desligado).
